@@ -15,6 +15,7 @@ Run with:
 
 import datetime as dt
 import re
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -33,6 +34,8 @@ st.set_page_config(
 
 RSI_PERIOD = 14
 MACD_FAST, MACD_SLOW, MACD_SIGNAL = 12, 26, 9
+
+IST = ZoneInfo("Asia/Kolkata")
 
 BULLISH_RSI = 60
 WEAK_RSI = 40
@@ -461,9 +464,9 @@ def main():
             st.cache_data.clear()
             st.rerun()
 
-        st.caption(f"Last loaded: {dt.datetime.now().strftime('%d %b %Y, %H:%M:%S')}")
+        st.caption(f"Last loaded: {dt.datetime.now(IST).strftime('%d %b %Y, %H:%M:%S')} IST")
 
-    fetch_timestamp = dt.datetime.now().strftime("%d %b %Y, %H:%M:%S")
+    fetch_timestamp = dt.datetime.now(IST).strftime("%d %b %Y, %H:%M:%S") + " IST"
 
     render_html(
         f"""
