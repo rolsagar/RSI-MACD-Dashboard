@@ -124,6 +124,7 @@ def analyze_ticker(ticker: str, display_name: str) -> dict | None:
     current_price = float(daily["Close"].iloc[-1])
     prev_close = float(daily["Close"].iloc[-2]) if len(daily) >= 2 else current_price
     day_change_pct = round(((current_price - prev_close) / prev_close) * 100, 2) if prev_close else 0.0
+    day_change_abs = round(current_price - prev_close, 2)
     lookback = daily.tail(252)  # ~1 trading year
     high_52w = float(lookback["High"].max())
     low_52w = float(lookback["Low"].min())
@@ -138,6 +139,7 @@ def analyze_ticker(ticker: str, display_name: str) -> dict | None:
         "name": display_name,
         "price": current_price,
         "day_change_pct": day_change_pct,
+        "day_change_abs": day_change_abs,
         "high_52w": high_52w,
         "low_52w": low_52w,
         "pct_of_high": pct_of_high,
@@ -245,6 +247,10 @@ table.dash-table tr.block-start td { border-top: 2px solid #d1d5db; }
 .vol-cell { font-size:12px; color:#374151; }
 .vol-up { color:#16a34a; font-weight:600; }
 .vol-down { color:#dc2626; font-weight:600; }
+
+.day-chg-num { font-size:16px; font-weight:700; }
+.day-chg-sub { font-size:12px; font-weight:600; margin-top:2px; }
+.day-chg-label { font-size:10px; color:#9ca3af; margin-top:2px; }
 
 .timeframe-lbl { font-weight:600; color:#374151; }
 .no-data { color:#9ca3af; font-style: italic; padding: 14px; }
@@ -373,6 +379,7 @@ def build_table(stocks: list[dict]) -> str:
             <div class="price-chg {'price-chg-up' if stock['day_change_pct']>=0 else 'price-chg-down'}">{'&#9650;' if stock['day_change_pct']>=0 else '&#9660;'} {abs(stock['day_change_pct']):.2f}% vs prev day</div>
             <div class="price-sub">52W Hi <b>{stock['high_52w']:,.0f}</b></div>
             <div class="price-sub">52W Lo <span class="price-lo">{stock['low_52w']:,.0f}</span></div>
+            <div class="vol-cell {'vol-up' if stock['vol_ratio']>=100 else 'vol-down'}">Vol: {stock['vol_ratio']:.0f}% of 20D avg</div>
         </td>
         <td rowspan="3">
             <div class="pct-wrap">
@@ -382,9 +389,9 @@ def build_table(stocks: list[dict]) -> str:
             </div>
         </td>
         <td rowspan="3">
-            <div class="vol-cell">Latest: <b>{stock['latest_volume']:,.0f}</b></div>
-            <div class="vol-cell">20D Avg: {stock['avg_volume_20']:,.0f}</div>
-            <div class="vol-cell {'vol-up' if stock['vol_ratio']>=100 else 'vol-down'}">{stock['vol_ratio']:.0f}% of avg</div>
+            <div class="day-chg-num {'price-chg-up' if stock['day_change_pct']>=0 else 'price-chg-down'}">{'&#9650;' if stock['day_change_pct']>=0 else '&#9660;'} {abs(stock['day_change_pct']):.2f}%</div>
+            <div class="day-chg-sub {'price-chg-up' if stock['day_change_abs']>=0 else 'price-chg-down'}">{'+' if stock['day_change_abs']>=0 else ''}{stock['day_change_abs']:,.2f}</div>
+            <div class="day-chg-label">vs prev day close</div>
         </td>
         """
         first = True
@@ -418,7 +425,7 @@ def build_table(stocks: list[dict]) -> str:
                 <th>Stock</th>
                 <th>Price (&#8377;)</th>
                 <th>% of 52W High</th>
-                <th>Volume</th>
+                <th>Day Change</th>
                 <th>Timeframe</th>
                 <th>RSI</th>
                 <th>MACD Position</th>
@@ -521,12 +528,17 @@ def main():
     sort_cols = st.columns([2, 2, 2, 2, 1.3, 1.5, 1.5])
     with sort_cols[0]:
         st.button(f"Sort: Stock {arrow('name')}", key="sort_btn_stock", on_click=toggle_sort, args=("name",), use_container_width=True)
+    with sort_cols[1]:
+        st.button(f"Sort: Price {arrow('price')}", key="sort_btn_price", on_click=toggle_sort, args=("price",), use_container_width=True)
     with sort_cols[2]:
         st.button(f"Sort: % of 52W High {arrow('pct_of_high')}", key="sort_btn_pct", on_click=toggle_sort, args=("pct_of_high",), use_container_width=True)
 
     reverse = st.session_state.sort_dir == "desc"
-    if st.session_state.sort_col == "name":
+    sort_col = st.session_state.sort_col
+    if sort_col == "name":
         table_stocks = sorted(stocks, key=lambda s: s["name"].lower(), reverse=reverse)
+    elif sort_col == "price":
+        table_stocks = sorted(stocks, key=lambda s: s["price"], reverse=reverse)
     else:
         table_stocks = sorted(
             stocks,
@@ -543,3 +555,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+After saving on GitHub (Commit changes), Streamlit Cloud will auto-redeploy within a minute or two.
