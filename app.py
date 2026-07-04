@@ -15,12 +15,13 @@ Run with:
 
 import datetime as dt
 import re
-from zoneinfo import ZoneInfo
+from urllib.parse import quote
 
 import numpy as np
 import pandas as pd
 import streamlit as st
-import yfinance as yf
+
+from stock_utils import IST, RSI_PERIOD, fetch_daily, macd_lines, resample_ohlc, rsi_wilder
 
 # --------------------------------------------------------------------------
 # CONFIG
@@ -31,11 +32,6 @@ st.set_page_config(
     page_icon="📈",
     layout="wide",
 )
-
-RSI_PERIOD = 14
-MACD_FAST, MACD_SLOW, MACD_SIGNAL = 12, 26, 9
-
-IST = ZoneInfo("Asia/Kolkata")
 
 BULLISH_RSI = 60
 WEAK_RSI = 40
@@ -55,51 +51,9 @@ DEFAULT_WATCHLIST = [
     ("BDL.NS", "BDL"),
 ]
 
-# --------------------------------------------------------------------------
-# INDICATOR MATH
-# --------------------------------------------------------------------------
-
-
-def rsi_wilder(close: pd.Series, period: int = RSI_PERIOD) -> pd.Series:
-    """Wilder's smoothed RSI (the standard TradingView-style RSI)."""
-    delta = close.diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-    avg_gain = gain.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    avg_loss = loss.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    rs = avg_gain / avg_loss.replace(0, np.nan)
-    rsi = 100 - (100 / (1 + rs))
-    rsi = rsi.fillna(50)
-    return rsi
-
-
-def macd_lines(close: pd.Series, fast=MACD_FAST, slow=MACD_SLOW, signal=MACD_SIGNAL):
-    ema_fast = close.ewm(span=fast, adjust=False).mean()
-    ema_slow = close.ewm(span=slow, adjust=False).mean()
-    macd_line = ema_fast - ema_slow
-    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
-    return macd_line, signal_line
-
-
-# --------------------------------------------------------------------------
-# DATA FETCH
-# --------------------------------------------------------------------------
-
-
-@st.cache_data(ttl=300, show_spinner=False)
-def fetch_daily(ticker: str) -> pd.DataFrame:
-    """Fetch ~3 years of daily OHLCV data for a ticker."""
-    df = yf.Ticker(ticker).history(period="3y", interval="1d", auto_adjust=False)
-    if df.empty:
-        return df
-    df.index = pd.to_datetime(df.index)
-    return df[["Open", "High", "Low", "Close", "Volume"]].dropna()
-
-
-def resample_ohlc(df: pd.DataFrame, rule: str) -> pd.DataFrame:
-    agg = {"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"}
-    out = df.resample(rule).agg(agg).dropna()
-    return out
+# NOTE: rsi_wilder, macd_lines, fetch_daily, and resample_ohlc now live in
+# stock_utils.py (imported above) so this dashboard and the chart page in
+# pages/1_Chart_View.py always use identical indicator math.
 
 
 def analyze_ticker(ticker: str, display_name: str) -> dict | None:
@@ -221,6 +175,8 @@ table.dash-table td { padding: 9px 12px; border-bottom: 1px solid #f0f1f3; verti
 table.dash-table tr.block-start td { border-top: 2px solid #d1d5db; }
 
 .stock-name { font-weight:700; color:#111827; font-size:13px; }
+.chart-link { display:inline-block; margin-top:6px; font-size:11px; font-weight:600; color:#2563eb; text-decoration:none; }
+.chart-link:hover { text-decoration:underline; }
 .price-cur { font-weight:700; color:#111827; font-size:14px; }
 .price-sub { font-size:11px; color:#6b7280; }
 .price-sub b { color:#111827; }
@@ -373,6 +329,7 @@ def build_table(stocks: list[dict]) -> str:
         price_block = f"""
         <td rowspan="3">
             <div class="stock-name">{stock['name']}</div>
+            <a class="chart-link" href="/Chart_View?ticker={quote(stock['ticker'])}&name={quote(stock['name'])}" target="_blank">&#128202; View Chart &#8599;</a>
         </td>
         <td rowspan="3">
             <div class="price-cur">Current {stock['price']:,.0f}</div>
