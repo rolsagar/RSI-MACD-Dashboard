@@ -69,7 +69,6 @@ fig = make_subplots(
     shared_xaxes=True,
     vertical_spacing=0.03,
     row_heights=[0.45, 0.15, 0.2, 0.2],
-    subplot_titles=("", "Volume", "MACD (12,26,9)", "RSI (14)"),
 )
 
 # --- Candlesticks ---
@@ -136,6 +135,26 @@ fig.update_layout(
     paper_bgcolor="white",
 )
 fig.update_yaxes(range=[0, 100], row=4, col=1)
+
+# --------------------------------------------------------------------------
+# Panel captions ("Volume", "MACD (12,26,9)", "RSI (14)") — placed at the
+# bottom-inside edge of each panel (like a caption under the chart) rather
+# than Plotly's default of putting them above each panel.
+# --------------------------------------------------------------------------
+
+panel_labels = {"yaxis2": "Volume", "yaxis3": "MACD (12,26,9)", "yaxis4": "RSI (14)"}
+for axis_name, label in panel_labels.items():
+    domain_bottom = fig.layout[axis_name].domain[0]
+    fig.add_annotation(
+        text=label,
+        xref="paper",
+        x=0.5,
+        yref="paper",
+        y=domain_bottom,
+        yanchor="bottom",
+        showarrow=False,
+        font=dict(size=13, color="#6b7280"),
+    )
 
 st.plotly_chart(fig, use_container_width=True)
 
