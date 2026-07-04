@@ -555,6 +555,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
 
-After saving on GitHub (Commit changes), Streamlit Cloud will auto-redeploy within a minute or two.
