@@ -38,17 +38,28 @@ WEAK_RSI = 40
 
 # Default watchlist -> (NSE ticker, Display name)
 DEFAULT_WATCHLIST = [
-    ("OFSS.NS", "OFSS"),
-    ("DRREDDY.NS", "DR REDDY"),
-    ("JSWENERGY.NS", "JSWENERGY"),
-    ("GOLDBEES.NS", "GOLDBEES"),
-    ("TATSILV.NS", "TATSILV"),
-    ("DHANUKA.NS", "DHANUKA"),
     ("ADANIENSOL.NS", "ADANI ENSOL"),
     ("ADANIGREEN.NS", "ADANI GREEN"),
     ("ASIANPAINT.NS", "ASIAN PAINT"),
     ("BAJFINANCE.NS", "BAJ FINANCE"),
     ("BDL.NS", "BDL"),
+    ("BEL.NS", "BEL"),
+    ("BHARTIARTL.NS", "BHARTI AIRTEL"),
+    ("DAICHI-BE.NS", "DAICHI-BE"),
+    ("DHANUKA.NS", "DHANUKA"),
+    ("DRREDDY.NS", "DR REDDY"),
+    ("GODREJIND.NS", "GODREJ IND"),
+    ("GOLDBEES.NS", "GOLDBEES"),
+    ("HAL.NS", "HAL"),
+    ("JIOFIN.NS", "JIO FIN"),
+    ("JSWENERGY.NS", "JSWENERGY"),
+    ("PTCIL.NS", "PTCIL"),
+    ("SOLARINDS.NS", "SOLAR INDUSTRIES"),
+    ("M&M.NS", "M&M"),
+    ("OFSS.NS", "OFSS"),
+    ("PARADEEP.NS", "PARADEEP"),
+    ("TATSILV.NS", "TATSILV"),
+    ("TMPV.NS", "TMPV"),
 ]
 
 # NOTE: rsi_wilder, macd_lines, fetch_daily, and resample_ohlc now live in
