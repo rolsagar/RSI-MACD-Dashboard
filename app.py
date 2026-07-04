@@ -376,7 +376,6 @@ def build_table(stocks: list[dict]) -> str:
         </td>
         <td rowspan="3">
             <div class="price-cur">Current {stock['price']:,.0f}</div>
-            <div class="price-chg {'price-chg-up' if stock['day_change_pct']>=0 else 'price-chg-down'}">{'&#9650;' if stock['day_change_pct']>=0 else '&#9660;'} {abs(stock['day_change_pct']):.2f}% vs prev day</div>
             <div class="price-sub">52W Hi <b>{stock['high_52w']:,.0f}</b></div>
             <div class="price-sub">52W Lo <span class="price-lo">{stock['low_52w']:,.0f}</span></div>
             <div class="vol-cell {'vol-up' if stock['vol_ratio']>=100 else 'vol-down'}">Vol: {stock['vol_ratio']:.0f}% of 20D avg</div>
@@ -528,17 +527,17 @@ def main():
     sort_cols = st.columns([2, 2, 2, 2, 1.3, 1.5, 1.5])
     with sort_cols[0]:
         st.button(f"Sort: Stock {arrow('name')}", key="sort_btn_stock", on_click=toggle_sort, args=("name",), use_container_width=True)
-    with sort_cols[1]:
-        st.button(f"Sort: Price {arrow('price')}", key="sort_btn_price", on_click=toggle_sort, args=("price",), use_container_width=True)
     with sort_cols[2]:
         st.button(f"Sort: % of 52W High {arrow('pct_of_high')}", key="sort_btn_pct", on_click=toggle_sort, args=("pct_of_high",), use_container_width=True)
+    with sort_cols[3]:
+        st.button(f"Sort: Day Change {arrow('day_change')}", key="sort_btn_daychange", on_click=toggle_sort, args=("day_change",), use_container_width=True)
 
     reverse = st.session_state.sort_dir == "desc"
     sort_col = st.session_state.sort_col
     if sort_col == "name":
         table_stocks = sorted(stocks, key=lambda s: s["name"].lower(), reverse=reverse)
-    elif sort_col == "price":
-        table_stocks = sorted(stocks, key=lambda s: s["price"], reverse=reverse)
+    elif sort_col == "day_change":
+        table_stocks = sorted(stocks, key=lambda s: s["day_change_pct"], reverse=reverse)
     else:
         table_stocks = sorted(
             stocks,
@@ -555,4 +554,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
