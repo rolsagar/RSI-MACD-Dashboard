@@ -1,5 +1,5 @@
 """
-Indian Stocks — RSI + MACD Dashboard
+My Z Stocks— RSI + MACD Dashboard
 =====================================
 A Streamlit dashboard that mirrors the reference design:
  - "Fully Bullish" and "Weak / Oversold" highlight cards
@@ -28,7 +28,7 @@ from stock_utils import IST, RSI_PERIOD, fetch_daily, macd_lines, resample_ohlc,
 # --------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="Indian Stocks — RSI + MACD Dashboard",
+    page_title="My Z Stocks— RSI + MACD Dashboard",
     page_icon="📈",
     layout="wide",
 )
@@ -177,12 +177,12 @@ CSS = """
 .badge-watch { background:#f59e0b; color:white; }
 .badge-weak { background:#dc2626; color:white; }
 
-table.dash-table { width:100%; min-width:900px; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
+table.dash-table { width:100%; min-width:760px; table-layout:fixed; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
 table.dash-table thead th {
     background:#12121f; color:#ffffff; text-transform:uppercase; font-size:11px;
     letter-spacing: 0.03em; padding: 10px 12px; text-align:left; font-weight:600;
 }
-table.dash-table td { padding: 9px 12px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+table.dash-table td { padding: 9px 8px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
 table.dash-table tr.block-start td { border-top: 2px solid #d1d5db; }
 
 .stock-name { font-weight:700; color:#111827; font-size:13px; }
@@ -198,7 +198,7 @@ table.dash-table tr.block-start td { border-top: 2px solid #d1d5db; }
 
 .pct-wrap { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
 .pct-num { font-weight:700; font-size:14px; }
-.pct-bar-bg { width:90px; height:6px; background:#e5e7eb; border-radius:4px; overflow:hidden; }
+.pct-bar-bg { width:68px; height:6px; background:#e5e7eb; border-radius:4px; overflow:hidden; }
 .pct-bar-fill { height:100%; border-radius:4px; }
 .pct-caption { font-size:10px; color:#9ca3af; }
 
@@ -387,6 +387,15 @@ def build_table(stocks: list[dict]) -> str:
     return f"""
     <div class="section-box" style="padding:0; overflow-x:auto; -webkit-overflow-scrolling:touch;">
     <table class="dash-table">
+        <colgroup>
+            <col style="width:98px;">
+            <col style="width:112px;">
+            <col style="width:90px;">
+            <col style="width:90px;">
+            <col style="width:68px;">
+            <col style="width:150px;">
+            <col style="width:120px;">
+        </colgroup>
         <thead>
             <tr>
                 <th>Stock</th>
@@ -445,7 +454,7 @@ def main():
     render_html(
         f"""
         <div class="dash-wrap">
-        <h1 style="margin-bottom:2px;">Indian Stocks — RSI + MACD Dashboard</h1>
+        <h1 style="margin-bottom:2px;">My Z Stocks— RSI + MACD Dashboard</h1>
         <p style="color:#6b7280; margin-top:0;">RSI (14, Wilder's EWM) &middot; MACD (12,26,9) &middot; Daily / Weekly / Monthly &middot; NSE</p>
         <p style="color:#111827; margin-top:0; font-size:13px; font-weight:600;">&#128337; Data pulled: {fetch_timestamp}</p>
         </div>
