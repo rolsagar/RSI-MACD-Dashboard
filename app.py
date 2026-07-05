@@ -1,5 +1,5 @@
 """
-My Z Stocks — RSI + MACD Dashboard
+Indian Stocks — RSI + MACD Dashboard
 =====================================
 A Streamlit dashboard that mirrors the reference design:
  - "Fully Bullish" and "Weak / Oversold" highlight cards
@@ -28,7 +28,7 @@ from stock_utils import IST, RSI_PERIOD, fetch_daily, macd_lines, resample_ohlc,
 # --------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="My Z Stocks — RSI + MACD Dashboard",
+    page_title="Indian Stocks — RSI + MACD Dashboard",
     page_icon="📈",
     layout="wide",
 )
@@ -177,7 +177,7 @@ CSS = """
 .badge-watch { background:#f59e0b; color:white; }
 .badge-weak { background:#dc2626; color:white; }
 
-table.dash-table { width:100%; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
+table.dash-table { width:100%; min-width:900px; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
 table.dash-table thead th {
     background:#12121f; color:#ffffff; text-transform:uppercase; font-size:11px;
     letter-spacing: 0.03em; padding: 10px 12px; text-align:left; font-weight:600;
@@ -385,7 +385,7 @@ def build_table(stocks: list[dict]) -> str:
             first = False
 
     return f"""
-    <div class="section-box" style="padding:0; overflow:hidden;">
+    <div class="section-box" style="padding:0; overflow-x:auto; -webkit-overflow-scrolling:touch;">
     <table class="dash-table">
         <thead>
             <tr>
@@ -445,7 +445,7 @@ def main():
     render_html(
         f"""
         <div class="dash-wrap">
-        <h1 style="margin-bottom:2px;">My Z Stocks — RSI + MACD Dashboard</h1>
+        <h1 style="margin-bottom:2px;">Indian Stocks — RSI + MACD Dashboard</h1>
         <p style="color:#6b7280; margin-top:0;">RSI (14, Wilder's EWM) &middot; MACD (12,26,9) &middot; Daily / Weekly / Monthly &middot; NSE</p>
         <p style="color:#111827; margin-top:0; font-size:13px; font-weight:600;">&#128337; Data pulled: {fetch_timestamp}</p>
         </div>
