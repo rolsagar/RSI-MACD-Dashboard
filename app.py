@@ -60,6 +60,8 @@ DEFAULT_WATCHLIST = [
     ("PARADEEP.NS", "PARADEEP"),
     ("TATSILV.NS", "TATSILV"),
     ("TMPV.NS", "TMPV"),
+    ("DIXON.NS", "DIXON"),
+    ("CEMPRO.NS", "CEMPRO"),
 ]
 
 # NOTE: rsi_wilder, macd_lines, fetch_daily, and resample_ohlc now live in
