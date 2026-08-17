@@ -271,6 +271,25 @@ def color_for_pct(pct: float) -> str:
     return "#dc2626"
 
 
+def color_for_trend(values: list[float], flat_threshold: float = 1.5) -> str:
+    """
+    Color for the RSI sparkline based on its DIRECTION over the window
+    (first reading vs. last reading), not its absolute level:
+      - green  = trending up   (last - first > flat_threshold)
+      - red    = trending down (last - first < -flat_threshold)
+      - blue   = roughly flat  (within +/- flat_threshold)
+    """
+    vals = [v for v in values if v is not None and not (isinstance(v, float) and np.isnan(v))]
+    if len(vals) < 2:
+        return "#9ca3af"
+    diff = vals[-1] - vals[0]
+    if diff > flat_threshold:
+        return "#16a34a"
+    if diff < -flat_threshold:
+        return "#dc2626"
+    return "#2563eb"
+
+
 def macd_pill(above) -> str:
     if above is None:
         return '<span class="macd-pill" style="background:#f3f4f6;color:#9ca3af;">N/A</span>'
@@ -431,7 +450,7 @@ def build_table(stocks: list[dict]) -> str:
             above = stock["tf"][label]["macd_above"]
             rsi_trend = stock["tf"][label].get("rsi_trend", [])
             rsi_color = color_for_rsi(rsi)
-            spark_html = rsi_sparkline(rsi_trend, rsi_color, center=rsi)
+            spark_html = rsi_sparkline(rsi_trend, color_for_trend(rsi_trend), center=rsi)
             row_cls = "block-start" if first else ""
             rsi_bar_pct = 0 if (rsi is None or np.isnan(rsi)) else min(max(rsi, 0), 100)
             row = f'<tr class="{row_cls}">'
