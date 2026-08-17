@@ -279,19 +279,40 @@ def macd_pill(above) -> str:
     return '<span class="macd-pill macd-below">&#8595; Below</span>'
 
 
-def rsi_sparkline(values: list[float], color: str, width: int = 44, height: int = 18) -> str:
+def rsi_sparkline(
+    values: list[float],
+    color: str,
+    center: float | None = None,
+    half_range: float = 15.0,
+    width: int = 44,
+    height: int = 18,
+) -> str:
     """
     Build a small inline SVG line chart for the last few RSI readings.
 
-    Scaled to the fixed 0-100 RSI range (not min/max of the window) so the
-    sparkline's vertical position stays comparable across stocks/rows, the
-    same way the horizontal RSI bar does.
+    Scaled to a [center - half_range, center + half_range] window (default
+    +/-15 around the latest RSI value) rather than the fixed 0-100 range, so
+    day-to-day/week-to-week/month-to-month wiggle is actually visible instead
+    of looking flat. The window is clamped to stay within [0, 100] while
+    keeping its full width, by sliding it rather than shrinking it.
     """
     vals = [v for v in values if v is not None and not (isinstance(v, float) and np.isnan(v))]
     if len(vals) < 2:
         return '<span style="display:inline-block;width:{}px;"></span>'.format(width)
 
-    lo, hi = 0.0, 100.0
+    if center is None or np.isnan(center):
+        center = vals[-1]
+
+    lo = center - half_range
+    hi = center + half_range
+    if lo < 0:
+        hi += -lo
+        lo = 0.0
+    if hi > 100:
+        lo -= hi - 100
+        hi = 100.0
+    lo = max(lo, 0.0)
+
     n = len(vals)
     pad = 2
     step = (width - 2 * pad) / (n - 1)
@@ -410,7 +431,7 @@ def build_table(stocks: list[dict]) -> str:
             above = stock["tf"][label]["macd_above"]
             rsi_trend = stock["tf"][label].get("rsi_trend", [])
             rsi_color = color_for_rsi(rsi)
-            spark_html = rsi_sparkline(rsi_trend, rsi_color)
+            spark_html = rsi_sparkline(rsi_trend, rsi_color, center=rsi)
             row_cls = "block-start" if first else ""
             rsi_bar_pct = 0 if (rsi is None or np.isnan(rsi)) else min(max(rsi, 0), 100)
             row = f'<tr class="{row_cls}">'
