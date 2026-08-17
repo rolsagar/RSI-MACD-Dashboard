@@ -36,6 +36,7 @@ st.set_page_config(
 BULLISH_RSI = 60
 WEAK_RSI = 40
 RSI_TREND_POINTS = 7  # how many past RSI readings to show in the sparkline
+RSI_SPARK_HALF_RANGE = {"Daily": 5.0, "Weekly": 10.0, "Monthly": 15.0}  # sparkline zoom per timeframe
 
 # Default watchlist -> (NSE ticker, Display name)
 DEFAULT_WATCHLIST = [
@@ -450,7 +451,10 @@ def build_table(stocks: list[dict]) -> str:
             above = stock["tf"][label]["macd_above"]
             rsi_trend = stock["tf"][label].get("rsi_trend", [])
             rsi_color = color_for_rsi(rsi)
-            spark_html = rsi_sparkline(rsi_trend, color_for_trend(rsi_trend), center=rsi)
+            spark_html = rsi_sparkline(
+                rsi_trend, color_for_trend(rsi_trend), center=rsi,
+                half_range=RSI_SPARK_HALF_RANGE.get(label, 15.0),
+            )
             row_cls = "block-start" if first else ""
             rsi_bar_pct = 0 if (rsi is None or np.isnan(rsi)) else min(max(rsi, 0), 100)
             row = f'<tr class="{row_cls}">'
