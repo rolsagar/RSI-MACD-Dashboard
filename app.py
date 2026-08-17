@@ -461,8 +461,8 @@ def build_table(stocks: list[dict]) -> str:
                 <td>
                     <div class="rsi-cell">
                         <span class="rsi-num" style="color:{rsi_color};">{rsi:.2f}</span>
-                        {spark_html}
                         <div class="rsi-bar-bg"><div class="rsi-bar-fill" style="width:{rsi_bar_pct}%; background:{rsi_color};"></div></div>
+                        {spark_html}
                     </div>
                 </td>
                 <td>{macd_pill(above)}</td>
