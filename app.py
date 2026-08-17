@@ -4,8 +4,8 @@ My Z Stocks— RSI + MACD Dashboard
 A Streamlit dashboard that mirrors the reference design:
  - "Fully Bullish" and "Weak / Oversold" highlight cards
  - A detailed table (Daily / Weekly / Monthly rows per stock) showing
-   RSI (Wilder's, 14) with a colored bar, MACD(12,26,9) position,
-   % of 52-week high, and volume.
+   RSI (Wilder's, 14) with a colored bar + trend sparkline, MACD(12,26,9)
+   position, % of 52-week high, and volume.
 
 Data source: yfinance (free, delayed ~15 min for NSE symbols).
 
@@ -35,6 +35,7 @@ st.set_page_config(
 
 BULLISH_RSI = 60
 WEAK_RSI = 40
+RSI_TREND_POINTS = 7  # how many past RSI readings to show in the sparkline
 
 # Default watchlist -> (NSE ticker, Display name)
 DEFAULT_WATCHLIST = [
@@ -81,12 +82,19 @@ def analyze_ticker(ticker: str, display_name: str) -> dict | None:
     tf_data = {}
     for tf_name, frame in frames.items():
         if len(frame) < RSI_PERIOD + 2:
-            tf_data[tf_name] = {"rsi": np.nan, "macd_above": None}
+            tf_data[tf_name] = {"rsi": np.nan, "macd_above": None, "rsi_trend": []}
             continue
-        rsi = rsi_wilder(frame["Close"]).iloc[-1]
+        rsi_series = rsi_wilder(frame["Close"])
+        rsi = rsi_series.iloc[-1]
+        # Last N RSI readings (drops any leading NaNs) for the sparkline.
+        rsi_trend = [round(float(x), 2) for x in rsi_series.tail(RSI_TREND_POINTS) if not np.isnan(x)]
         macd_line, signal_line = macd_lines(frame["Close"])
         macd_above = bool(macd_line.iloc[-1] > signal_line.iloc[-1])
-        tf_data[tf_name] = {"rsi": round(float(rsi), 2), "macd_above": macd_above}
+        tf_data[tf_name] = {
+            "rsi": round(float(rsi), 2),
+            "macd_above": macd_above,
+            "rsi_trend": rsi_trend,
+        }
 
     current_price = float(daily["Close"].iloc[-1])
     prev_close = float(daily["Close"].iloc[-2]) if len(daily) >= 2 else current_price
@@ -179,7 +187,7 @@ CSS = """
 .badge-watch { background:#f59e0b; color:white; }
 .badge-weak { background:#dc2626; color:white; }
 
-table.dash-table { width:100%; min-width:760px; table-layout:fixed; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
+table.dash-table { width:100%; min-width:820px; table-layout:fixed; border-collapse: collapse; font-size: 13px; background:white; border-radius: 10px; overflow:hidden;}
 table.dash-table thead th {
     background:#12121f; color:#ffffff; text-transform:uppercase; font-size:11px;
     letter-spacing: 0.03em; padding: 10px 12px; text-align:left; font-weight:600;
@@ -204,9 +212,10 @@ table.dash-table tr.block-start td { border-top: 2px solid #d1d5db; }
 .pct-bar-fill { height:100%; border-radius:4px; }
 .pct-caption { font-size:10px; color:#9ca3af; }
 
-.rsi-cell { display:flex; align-items:center; gap:8px; }
-.rsi-num { font-weight:700; font-size:13px; width:34px; }
-.rsi-bar-bg { flex:1; max-width:80px; height:6px; background:#e5e7eb; border-radius:4px; overflow:hidden; }
+.rsi-cell { display:flex; align-items:center; gap:7px; }
+.rsi-num { font-weight:700; font-size:13px; width:34px; flex-shrink:0; }
+.rsi-spark { flex-shrink:0; }
+.rsi-bar-bg { flex:1; max-width:46px; height:6px; background:#e5e7eb; border-radius:4px; overflow:hidden; flex-shrink:0; }
 .rsi-bar-fill { height:100%; border-radius:4px; }
 
 .macd-pill { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; }
@@ -268,6 +277,38 @@ def macd_pill(above) -> str:
     if above:
         return '<span class="macd-pill macd-above">&#8593; Above</span>'
     return '<span class="macd-pill macd-below">&#8595; Below</span>'
+
+
+def rsi_sparkline(values: list[float], color: str, width: int = 44, height: int = 18) -> str:
+    """
+    Build a small inline SVG line chart for the last few RSI readings.
+
+    Scaled to the fixed 0-100 RSI range (not min/max of the window) so the
+    sparkline's vertical position stays comparable across stocks/rows, the
+    same way the horizontal RSI bar does.
+    """
+    vals = [v for v in values if v is not None and not (isinstance(v, float) and np.isnan(v))]
+    if len(vals) < 2:
+        return '<span style="display:inline-block;width:{}px;"></span>'.format(width)
+
+    lo, hi = 0.0, 100.0
+    n = len(vals)
+    pad = 2
+    step = (width - 2 * pad) / (n - 1)
+    pts = []
+    for i, v in enumerate(vals):
+        x = pad + i * step
+        y = pad + (height - 2 * pad) * (1 - (max(min(v, hi), lo) - lo) / (hi - lo))
+        pts.append((x, y))
+
+    poly = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    last_x, last_y = pts[-1]
+
+    return f"""<svg class="rsi-spark" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+        <polyline points="{poly}" fill="none" stroke="{color}" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+        <circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="1.9" fill="{color}"/>
+    </svg>"""
 
 
 def build_card(stock: dict, kind: str) -> str:
@@ -367,7 +408,9 @@ def build_table(stocks: list[dict]) -> str:
         for label in ["Daily", "Weekly", "Monthly"]:
             rsi = stock["tf"][label]["rsi"]
             above = stock["tf"][label]["macd_above"]
+            rsi_trend = stock["tf"][label].get("rsi_trend", [])
             rsi_color = color_for_rsi(rsi)
+            spark_html = rsi_sparkline(rsi_trend, rsi_color)
             row_cls = "block-start" if first else ""
             rsi_bar_pct = 0 if (rsi is None or np.isnan(rsi)) else min(max(rsi, 0), 100)
             row = f'<tr class="{row_cls}">'
@@ -378,6 +421,7 @@ def build_table(stocks: list[dict]) -> str:
                 <td>
                     <div class="rsi-cell">
                         <span class="rsi-num" style="color:{rsi_color};">{rsi:.2f}</span>
+                        {spark_html}
                         <div class="rsi-bar-bg"><div class="rsi-bar-fill" style="width:{rsi_bar_pct}%; background:{rsi_color};"></div></div>
                     </div>
                 </td>
@@ -395,7 +439,7 @@ def build_table(stocks: list[dict]) -> str:
             <col style="width:90px;">
             <col style="width:90px;">
             <col style="width:68px;">
-            <col style="width:150px;">
+            <col style="width:190px;">
             <col style="width:120px;">
         </colgroup>
         <thead>
@@ -405,7 +449,7 @@ def build_table(stocks: list[dict]) -> str:
                 <th>% of 52W High</th>
                 <th>Day Change</th>
                 <th>Timeframe</th>
-                <th>RSI</th>
+                <th>RSI (+ 7-period trend)</th>
                 <th>MACD Position</th>
             </tr>
         </thead>
