@@ -39,51 +39,30 @@ RSI_TREND_POINTS = 7  # how many past RSI readings to show in the sparkline
 RSI_SPARK_HALF_RANGE = {"Daily": 5.0, "Weekly": 10.0, "Monthly": 15.0}  # sparkline zoom per timeframe
 
 # Default watchlist -> (NSE ticker, Display name)
-DEFAULT_WATCHLIST = [
-    ("ANANTRAJ.NS", "ANANTRAJ"),
-3
+DEFAULT_WATCHLIST = 
+[
+("ANANTRAJ.NS", "ANANTRAJ"),
 ("ASIANPAINT.NS", "ASIAN PAINT"),
-4
 ("BAJFINANCE.NS", "BAJ FINANCE"),
-5
 ("BDL.NS", "BDL"),
-6
 ("BEL.NS", "BEL"),
-7
 ("BEML.NS", "BEML"),
-8
 ("CEMPRO.NS", "CEMPRO"),
-9
 ("DAICHI-BE.NS", "DAICHI-BE"),
-10
 ("DHANUKA.NS", "DHANUKA"),
-11
 ("DIXON.NS", "DIXON"),
-12
 ("GODREJIND.NS", "GODREJ IND"),
-13
 ("GOLDBEES.NS", "GOLDBEES"),
-14
 ("HDFCGOLD.NS", "HDFCGOLD"),
-15
 ("HINDCOPPER.NS", "HIND COPPER"),
-16
 ("JIOFIN.NS", "JIO FIN"),
-17
 ("JSWENERGY.NS", "JSW ENERGY"),
-18
 ("M&M.NS", "M&M"),
-19
 ("MCX.NS", "MCX"),
-20
 ("PARADEEP.NS", "PARADEEP"),
-21
 ("PAYTM.NS", "PAYTM"),
-22
 ("TATACONSUM.NS", "TATA CONSUMER"),
-23
 ("TATSILV.NS", "TATSILV"),
-24
 ("TMPV.NS", "TMPV"),
 ]
 
