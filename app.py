@@ -40,30 +40,51 @@ RSI_SPARK_HALF_RANGE = {"Daily": 5.0, "Weekly": 10.0, "Monthly": 15.0}  # sparkl
 
 # Default watchlist -> (NSE ticker, Display name)
 DEFAULT_WATCHLIST = [
-    ("ADANIENSOL.NS", "ADANI ENSOL"),
-    ("ADANIGREEN.NS", "ADANI GREEN"),
-    ("ASIANPAINT.NS", "ASIAN PAINT"),
-    ("BAJFINANCE.NS", "BAJ FINANCE"),
-    ("BDL.NS", "BDL"),
-    ("BEL.NS", "BEL"),
-    ("BHARTIARTL.NS", "BHARTI AIRTEL"),
-    ("DAICHI-BE.NS", "DAICHI-BE"),
-    ("DHANUKA.NS", "DHANUKA"),
-    ("DRREDDY.NS", "DR REDDY"),
-    ("GODREJIND.NS", "GODREJ IND"),
-    ("GOLDBEES.NS", "GOLDBEES"),
-    ("HAL.NS", "HAL"),
-    ("JIOFIN.NS", "JIO FIN"),
-    ("JSWENERGY.NS", "JSWENERGY"),
-    ("PTCIL.NS", "PTCIL"),
-    ("SOLARINDS.NS", "SOLAR INDUSTRIES"),
-    ("M&M.NS", "M&M"),
-    ("OFSS.NS", "OFSS"),
-    ("PARADEEP.NS", "PARADEEP"),
-    ("TATSILV.NS", "TATSILV"),
-    ("TMPV.NS", "TMPV"),
-    ("DIXON.NS", "DIXON"),
-    ("CEMPRO.NS", "CEMPRO"),
+    ("ANANTRAJ.NS", "ANANTRAJ"),
+3
+("ASIANPAINT.NS", "ASIAN PAINT"),
+4
+("BAJFINANCE.NS", "BAJ FINANCE"),
+5
+("BDL.NS", "BDL"),
+6
+("BEL.NS", "BEL"),
+7
+("BEML.NS", "BEML"),
+8
+("CEMPRO.NS", "CEMPRO"),
+9
+("DAICHI-BE.NS", "DAICHI-BE"),
+10
+("DHANUKA.NS", "DHANUKA"),
+11
+("DIXON.NS", "DIXON"),
+12
+("GODREJIND.NS", "GODREJ IND"),
+13
+("GOLDBEES.NS", "GOLDBEES"),
+14
+("HDFCGOLD.NS", "HDFCGOLD"),
+15
+("HINDCOPPER.NS", "HIND COPPER"),
+16
+("JIOFIN.NS", "JIO FIN"),
+17
+("JSWENERGY.NS", "JSW ENERGY"),
+18
+("M&M.NS", "M&M"),
+19
+("MCX.NS", "MCX"),
+20
+("PARADEEP.NS", "PARADEEP"),
+21
+("PAYTM.NS", "PAYTM"),
+22
+("TATACONSUM.NS", "TATA CONSUMER"),
+23
+("TATSILV.NS", "TATSILV"),
+24
+("TMPV.NS", "TMPV"),
 ]
 
 # NOTE: rsi_wilder, macd_lines, fetch_daily, and resample_ohlc now live in
